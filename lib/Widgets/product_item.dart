@@ -5,14 +5,10 @@ import '../providers/cart.dart';
 import '../providers/product.dart';
 import '../screens/product_details_screen.dart';
 
-
 class ProductItem extends StatelessWidget {
-  // final String id;
-  // final String title;
-  // final String imageUrl;
-  const ProductItem(
-      {Key? key,})
-      : super(key: key);
+  const ProductItem({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +28,15 @@ class ProductItem extends StatelessWidget {
           trailing: IconButton(
             onPressed: () {
               cart.addItem(product.id, product.price, product.title);
+              ScaffoldMessenger.of(context).showSnackBar(
+                 SnackBar(
+                  content: const Text('Add an item to the cart'),
+                  duration: const Duration(seconds: 6),
+                  action: SnackBarAction(label: 'Undo', onPressed: (){
+                    cart.removeSingleItem(product.id);
+                  }),
+                ),
+              );
             },
             icon: Icon(
               Icons.shopping_cart,

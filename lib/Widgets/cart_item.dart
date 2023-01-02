@@ -14,7 +14,8 @@ class CartItemTile extends StatelessWidget {
     required this.id,
     required this.price,
     required this.quantity,
-    required this.title, required this.productId,
+    required this.title,
+    required this.productId,
   }) : super(key: key);
 
   @override
@@ -24,6 +25,28 @@ class CartItemTile extends StatelessWidget {
         Provider.of<Cart>(context, listen: false).removeItem(productId);
       },
       direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) {
+        return showDialog(
+          context: context,
+          builder: (BuildContext ctx) => AlertDialog(
+            title: const Text('Do you want to remove an item?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop(true);
+                },
+                child: const Text('Yes'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop(false);
+                },
+                child: const Text('No'),
+              ),
+            ],
+          ),
+        );
+      },
       background: Container(
         color: Theme.of(context).errorColor,
         alignment: Alignment.centerRight,
@@ -32,7 +55,11 @@ class CartItemTile extends StatelessWidget {
           horizontal: 15,
           vertical: 4,
         ),
-        child: const Icon(Icons.delete, color: Colors.white, size: 40,),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+          size: 40,
+        ),
       ),
       key: ValueKey(id),
       child: Card(
