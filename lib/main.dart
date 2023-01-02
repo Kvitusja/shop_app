@@ -9,6 +9,7 @@ import 'screens/orders_screen.dart';
 import 'screens/product_details_screen.dart';
 import 'screens/product_overview.dart';
 import 'screens/user_products_screen.dart';
+import 'screens/edit_product_screen.dart';
 
 void main() => runApp(const MyApp());
 
@@ -32,12 +33,14 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
           title: 'MyShop',
           theme: ThemeData(
-            scaffoldBackgroundColor: Colors.brown,
+            //scaffoldBackgroundColor: Colors.brown,
+            scaffoldBackgroundColor: Colors.white70,
             iconTheme: const IconThemeData(
               color: Color(0xff24788F),
             ),
-            colorScheme: ColorScheme.fromSwatch(
-                primarySwatch: Colors.brown, accentColor: Colors.teal),
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color.fromRGBO(190, 232, 255, 1),
+            primaryContainer: const Color.fromRGBO(190, 232, 255, 1),),
           ),
           home: const ProductOverviewScreen(),
           routes: {
@@ -46,6 +49,7 @@ class MyApp extends StatelessWidget {
             CartScreen.routeName: (ctx) => const CartScreen(),
             OrdersScreen.routeName: (ctx) => const OrdersScreen(),
             UserProductsScreen.routeName: (ctx) => const UserProductsScreen(),
+            EditProductScreen.routeName: (ctx) => const EditProductScreen(),
           }),
     );
   }
