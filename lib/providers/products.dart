@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'product.dart';
 
@@ -55,16 +58,36 @@ class Products with ChangeNotifier {
     return _items.where((productItem) => productItem.isFavourite).toList();
   }
 
-  void addProduct(Product product) {
-    final newProduct = Product(
-      id: DateTime.now().toString(),
-      title: product.title,
-      description: product.description,
-      price: product.price,
-      imageUrl: product.imageUrl,
-    );
-    _items.add(newProduct);
-    notifyListeners();
+  Future<void> addProduct(Product product) {
+    final url = Uri.https(
+        'shoptestapp-cc209-default-rtdb.europe-west1.firebasedatabase.app',
+        '/products.json');
+   return http
+        .post(
+      url,
+      body: json.encode(
+        {
+          'title': product.title,
+          'description': product.description,
+          'imageUrl': product.imageUrl,
+          'price': product.price,
+          'isFavourite': product.isFavourite,
+        },
+      ),
+    )
+        .then((response) {
+      final newProduct = Product(
+        id: json.decode(response.body)['name'],
+        title: product.title,
+        description: product.description,
+        price: product.price,
+        imageUrl: product.imageUrl,
+      );
+      _items.add(newProduct);
+      notifyListeners();
+    }).catchError((error) {
+      throw error;
+   });
   }
 
   void updateProduct(String id, Product newProduct) {
@@ -73,7 +96,7 @@ class Products with ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteProduct(String id){
+  void deleteProduct(String id) {
     _items.removeWhere((prod) => prod.id == id);
     notifyListeners();
   }
