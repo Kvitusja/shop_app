@@ -78,7 +78,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     final isValid = _formKey.currentState!.validate();
     if (!isValid) {
       return;
@@ -87,40 +87,43 @@ class _EditProductScreenState extends State<EditProductScreen> {
     setState(() {
       _isLoading = true;
     });
-    if (_editedProduct.id == null) {
-      Provider.of<Products>(context, listen: false)
-          .addProduct(_editedProduct)
-          .catchError((error) {
-       return showDialog<void>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Error occurred'),
-            content: const Text('Something went wrong'),
-            actions: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Ok'),
-              ),
-            ],
-          ),
-        );
-      }).then((_) {
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.of(context).pop();
-      });
-    } else {
+    if (_editedProduct.id != null) {
       Provider.of<Products>(context, listen: false)
           .updateProduct(_editedProduct.id!, _editedProduct);
       setState(() {
         _isLoading = false;
       });
       Navigator.of(context).pop();
+    } else {
+      try {
+        await Provider.of<Products>(context, listen: false)
+            .addProduct(_editedProduct);
+      } catch (error) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('An error occurred!'),
+            content: const Text('Something went wrong.'),
+            actions: <Widget>[
+              ElevatedButton(
+                child: const Text('Okay'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          ),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.of(context).pop();
+      }
     }
+    // Navigator.of(context).pop();
   }
+
 
   @override
   void dispose() {

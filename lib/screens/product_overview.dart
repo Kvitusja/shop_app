@@ -5,6 +5,7 @@ import '../Widgets/app_drawer.dart';
 import '../Widgets/cart_badge.dart';
 import '../Widgets/products_grid.dart';
 import '../providers/cart.dart';
+import '../providers/products.dart';
 import 'cart_screen.dart';
 
 enum ValueOptions {
@@ -23,8 +24,13 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
   var _showOnlyFavourites = false;
 
   @override
+  void initState() {
+    Provider.of<Products>(context, listen: false).fetchAndSetProducts();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    //final productsContainer = Provider.of<Products>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text('A shop'),
