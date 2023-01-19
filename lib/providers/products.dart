@@ -41,12 +41,16 @@ class Products with ChangeNotifier {
     // ),
   ];
 
-  //var showFavouritesOnly = false;
+  final String? authToken;
+  final String? userId;
+
+  Products(
+    this.authToken,
+    this._items,
+    this.userId,
+  );
 
   List<Product> get items {
-    // if(showFavouritesOnly){
-    //   return _items.where((productItem) => productItem.isFavourite).toList();
-    // }
     return [..._items];
   }
 
@@ -58,13 +62,33 @@ class Products with ChangeNotifier {
     return _items.where((productItem) => productItem.isFavourite).toList();
   }
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts(bool filterByUser) async {
+    var params = {
+      'auth': authToken,
+    };
+    if (filterByUser) {
+      params = {
+        'auth': authToken,
+        'orderBy': '"creatorId"',
+        'equalTo': '"$userId"',
+      };
+    }
     final url = Uri.https(
-        'shoptestapp-cc209-default-rtdb.europe-west1.firebasedatabase.app',
-        '/products.json');
+      'shoptestapp-cc209-default-rtdb.europe-west1.firebasedatabase.app',
+      '/products.json', params
+    );
     try {
       final response = await http.get(url);
-      final extractedData = jsonDecode(response.body) as Map<String, dynamic>;
+      final extractedData = json.decode(response.body) as Map<String, dynamic>?;
+      if (extractedData == null) {
+        return;
+      }
+      final favouriteUrl = Uri.https(
+          'shoptestapp-cc209-default-rtdb.europe-west1.firebasedatabase.app',
+          '/userFavourites/$userId.json',
+          {'auth': authToken});
+      final favouriteResponse = await http.get(favouriteUrl);
+      final favouriteData = jsonDecode(favouriteResponse.body);
       final List<Product> loadedProducts = [];
       extractedData.forEach((productId, productData) {
         loadedProducts.add(
@@ -74,22 +98,25 @@ class Products with ChangeNotifier {
             description: productData['description'],
             price: productData['price'],
             imageUrl: productData['imageUrl'],
-            isFavourite: productData['isFavourite'],
+            isFavourite: favouriteData == null
+                ? false
+                : favouriteData[productId] ?? false,
           ),
         );
         _items = loadedProducts;
         notifyListeners();
       });
-      //print(json.decode(response.body));
     } catch (error) {
       rethrow;
     }
   }
 
   Future<void> addProduct(Product product) async {
+    var params = {'auth': authToken};
     final url = Uri.https(
         'shoptestapp-cc209-default-rtdb.europe-west1.firebasedatabase.app',
-        '/products.json');
+        '/products.json',
+        params);
     try {
       final response = await http.post(
         url,
@@ -99,7 +126,7 @@ class Products with ChangeNotifier {
             'description': product.description,
             'imageUrl': product.imageUrl,
             'price': product.price,
-            'isFavourite': product.isFavourite,
+            'creatorId': userId,
           },
         ),
       );
@@ -117,14 +144,33 @@ class Products with ChangeNotifier {
     }
   }
 
-  void updateProduct(String id, Product newProduct) {
+  Future<void> updateProduct(String id, Product newProduct) async {
     final productIndex = _items.indexWhere((prod) => prod.id == id);
+    var params = {'auth': authToken};
+    final url = Uri.https(
+        'shoptestapp-cc209-default-rtdb.europe-west1.firebasedatabase.app',
+        '/products/$id.json',
+        params);
+    await http.patch(url,
+        body: jsonEncode({
+          'title': newProduct.title,
+          'description': newProduct.description,
+          'imageUrl': newProduct.imageUrl,
+          'price': newProduct.price,
+        }));
     _items[productIndex] = newProduct;
     notifyListeners();
   }
 
   void deleteProduct(String id) {
+    var params = {'auth': authToken};
+    final url = Uri.https(
+        'shoptestapp-cc209-default-rtdb.europe-west1.firebasedatabase.app',
+        '/products/$id.json',
+        params);
     _items.removeWhere((prod) => prod.id == id);
+    http.delete(url);
     notifyListeners();
   }
+
 }

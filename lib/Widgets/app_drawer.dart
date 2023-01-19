@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app/providers/auth.dart';
 
+import '../screens/authentification_screen.dart';
 import '../screens/orders_screen.dart';
 import '../screens/user_products_screen.dart';
-
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
@@ -62,6 +64,52 @@ class AppDrawer extends StatelessWidget {
             ),
             onTap: () => Navigator.of(context)
                 .pushReplacementNamed(UserProductsScreen.routeName),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('LogOut'),
+                    content: const Text('Do you want to logout?'),
+                    actions: <Widget>[
+                      ElevatedButton(
+                        child: const Text('Yes'),
+                        onPressed: () {
+                          Navigator.of(context).pushReplacementNamed(AuthenticationScreen.routeName);
+                          Provider.of<Auth>(context, listen: false).logout();
+                          //Navigator.of(context).pop();
+                        },
+                      ),
+                      ElevatedButton(
+                        child: const Text('No'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      )
+                    ],
+                  ),
+                );
+              },
+              style: ButtonStyle(
+                elevation: MaterialStateProperty.all(1),
+                backgroundColor: MaterialStateProperty.all<Color?>(
+                    Theme.of(context).colorScheme.secondary),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(10.0),
+                child: Text(
+                  'Log Out',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),

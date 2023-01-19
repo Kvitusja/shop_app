@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/products.dart';
 import 'product_item.dart';
 
-class ProductsGrid extends StatelessWidget {
+class ProductsGrid extends StatefulWidget {
   final bool showOnlyFavourites;
   const ProductsGrid({
     Key? key,
@@ -12,18 +12,31 @@ class ProductsGrid extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<ProductsGrid> createState() => _ProductsGridState();
+}
+
+class _ProductsGridState extends State<ProductsGrid> {
+  late Future<void> fetchedData;
+
+  @override
+  void initState() {
+    fetchedData =
+        Provider.of<Products>(context, listen: false).fetchAndSetProducts(true);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final productsData = Provider.of<Products>(context, listen: false);
-    final products =
-        showOnlyFavourites ? productsData.favouriteItems : productsData.items;
+    final productsData = Provider.of<Products>(context);
+    final products = widget.showOnlyFavourites
+        ? productsData.favouriteItems
+        : productsData.items;
     return FutureBuilder(
-        future: Provider.of<Products>(context).fetchAndSetProducts(),
-        builder: (context, AsyncSnapshot dataSnapshot) {
-          // if (!dataSnapshot.hasData) {
-          //   return const Center(
-          //     child: CircularProgressIndicator(),
-          //   );
-          // }
+      future: fetchedData,
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else {
           return GridView.builder(
             padding: const EdgeInsets.all(10),
             itemCount: products.length,
@@ -38,6 +51,8 @@ class ProductsGrid extends StatelessWidget {
               child: const ProductItem(),
             ),
           );
-        });
+        }
+      },
+    );
   }
 }
