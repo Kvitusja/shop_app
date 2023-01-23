@@ -33,7 +33,8 @@ class ProductItem extends StatelessWidget {
             ),
             trailing: IconButton(
               onPressed: () {
-                cart.addItem(product.id as String, product.price, product.title);
+                cart.addItem(
+                    product.id as String, product.price, product.title);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: const Text('Add an item to the cart'),
@@ -67,11 +68,23 @@ class ProductItem extends StatelessWidget {
             },
             child: Padding(
               padding: const EdgeInsets.all(6.0),
-              child: CircleAvatar(
-                backgroundImage: NetworkImage(
-                  product.imageUrl,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(90.0),
+                child: Hero(
+                  tag: product.id as Object,
+                  child: FadeInImage(
+                    placeholder: const AssetImage('assets/product-preload.png'),
+                    image: NetworkImage(product.imageUrl),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
+              // child: CircleAvatar(
+              //   backgroundImage:
+              //   NetworkImage(
+              //     product.imageUrl,
+              //   ),
+              // ),
             ),
           ),
         ),

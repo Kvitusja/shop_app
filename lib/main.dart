@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'helpers/custom_route.dart';
 import 'providers/auth.dart';
 import 'providers/cart.dart';
 import 'providers/orders.dart';
@@ -62,6 +63,9 @@ class MyApp extends StatelessWidget {
                 seedColor: const Color.fromRGBO(190, 232, 255, 1),
                 primaryContainer: const Color.fromRGBO(190, 232, 255, 1),
               ),
+              cd pageTransitionsTheme: PageTransitionsTheme(builders: {
+                TargetPlatform.android: CustomPageTransitionBuilder(),
+              }),
             ),
             home: authentication.isAuthenticated
                 ? const ProductOverviewScreen()

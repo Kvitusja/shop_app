@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shop_app/providers/auth.dart';
 
+
+import '../helpers/custom_route.dart';
+import '../providers/auth.dart';
 import '../screens/authentification_screen.dart';
 import '../screens/orders_screen.dart';
+import '../screens/product_overview.dart';
 import '../screens/user_products_screen.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -37,7 +40,9 @@ class AppDrawer extends StatelessWidget {
               'Shop',
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
-            onTap: () => Navigator.of(context).pushReplacementNamed('/'),
+            onTap:
+            () => Navigator.of(context).pushReplacement(CustomRoute(builder: (context) => const ProductOverviewScreen()),),
+                //() => Navigator.of(context).pushReplacementNamed('/'),
           ),
           const Divider(),
           ListTile(
@@ -80,7 +85,7 @@ class AppDrawer extends StatelessWidget {
                         onPressed: () {
                           Navigator.of(context).pushReplacementNamed(AuthenticationScreen.routeName);
                           Provider.of<Auth>(context, listen: false).logout();
-                          //Navigator.of(context).pop();
+
                         },
                       ),
                       ElevatedButton(
